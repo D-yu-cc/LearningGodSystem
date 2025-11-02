@@ -1,23 +1,69 @@
 <view class="container">
-  <view class="card">
-    <view wx:for="{{messages}}" wx:key="index" class="message">
-      <view wx:if="{{item.role==='user'}}" style="text-align:right; margin-bottom:8px;">
-        <text>你：{{item.text}}</text>
+  <!-- 聊天消息区域 -->
+  <scroll-view class="chat-container" scroll-y="true" scroll-top="{{scrollTop}}" scroll-into-view="{{scrollIntoView}}">
+    <view wx:for="{{messages}}" wx:key="index" class="message-item" id="msg-{{index}}">
+      <!-- 用户消息 -->
+      <view wx:if="{{item.role==='user'}}" class="message user-message">
+        <view class="message-content">
+          <text class="message-text">{{item.text}}</text>
+        </view>
+        <view class="message-avatar user-avatar">你</view>
       </view>
-      <view wx:if="{{item.role==='ai'}}" style="text-align:left; margin-bottom:8px;">
-        <text>AI：{{item.text}}</text>
+      
+      <!-- AI消息 -->
+      <view wx:if="{{item.role==='ai'}}" class="message ai-message">
+        <view class="message-avatar ai-avatar">AI</view>
+        <view class="message-content">
+          <text class="message-text">{{item.text}}</text>
+          <view wx:if="{{item.isTyping}}" class="typing-indicator">
+            <view class="typing-dot"></view>
+            <view class="typing-dot"></view>
+            <view class="typing-dot"></view>
+          </view>
+        </view>
       </view>
     </view>
-
-    <view style="margin-top:8px;">
-      <input placeholder="输入内容，例：今天学习了2小时" value="{{input}}" bindinput="onInput" style="width:70%;"/>
-      <button class="btn" bindtap="onSend">发送</button>
+    
+    <!-- 空状态提示 -->
+    <view wx:if="{{messages.length === 0}}" class="empty-state">
+      <text class="empty-text">开始与AI对话吧！</text>
+      <text class="empty-hint">输入任何问题或想法，AI会为您提供帮助</text>
     </view>
+  </scroll-view>
 
-    <view class="button-row">
-      <view bindtap="onDailyReport" class="btn">生成每日战报</view>
-      <view bindtap="onViewStats" class="btn">查看属性</view>
-      <view bindtap="onPublishTask" class="btn">发布任务</view>
+  <!-- 输入区域 -->
+  <view class="input-container">
+    <view class="input-wrapper">
+      <input 
+        class="message-input" 
+        placeholder="输入消息..." 
+        value="{{input}}" 
+        bindinput="onInput"
+        bindconfirm="onSend"
+        confirm-type="send"
+        disabled="{{isLoading}}"
+      />
+      <button 
+        class="send-btn {{isLoading ? 'loading' : ''}}" 
+        bindtap="onSend"
+        disabled="{{!input || isLoading}}"
+      >
+        <text wx:if="{{!isLoading}}">发送</text>
+        <text wx:else>发送中...</text>
+      </button>
     </view>
+  </view>
+
+  <!-- 快捷功能按钮 -->
+  <view class="quick-actions">
+    <button class="action-btn" bindtap="onDailyReport" disabled="{{isLoading}}">
+      <text class="action-text">生成战报</text>
+    </button>
+    <button class="action-btn" bindtap="onViewStats" disabled="{{isLoading}}">
+      <text class="action-text">查看属性</text>
+    </button>
+    <button class="action-btn" bindtap="onPublishTask" disabled="{{isLoading}}">
+      <text class="action-text">发布任务</text>
+    </button>
   </view>
 </view>
